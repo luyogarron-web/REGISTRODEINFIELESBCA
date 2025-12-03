@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>REGISTRO PROVINCIAL DE INFIELES BARRANCA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<style>
+/* =========================================================================
+   ESTILOS (CSS)
+   ========================================================================= */
+:root {
+    --color-background: #f7f7f7;
+    --color-text: #2c3e50;
+    --color-card-bg: #ffffff;
+    --color-border: #e6e6e6;
+    --color-primary-start: #ff8a65;
+    --color-primary-end: #ff5252;
+    --gradient-report: linear-gradient(to right, #ff5252, #f53d2d);
+    --body-background-light: linear-gradient(135deg, #f7f7f7, #ffeaea);
+    --color-metric-reports-bg: #ffc107;
+    --color-metric-online-bg: #2ecc71;
+}
+
+.dark-mode {
+    --color-background: #1e1e1e;
+    --color-text: #eaeaea;
+    --color-card-bg: #2b2b2b;
+    --color-border: #3a3a3a;
+    --body-background-dark: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background: var(--body-background-light);
+    transition: background 0.5s, color 0.5s;
+    color: var(--color-text);
+    font-family: 'Segoe UI', sans-serif;
+    text-align: center;
+    line-height: 1.7;
+}
+.dark-mode body { background: var(--body-background-dark); }
+
+/* NAV Y HERO */
+.navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--color-card-bg); padding: 15px 20px; border-bottom: 1px solid var(--color-border);
+}
+.report-icon { color: var(--color-primary-end); font-size: 22px; }
+.toggle-btn { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--color-text); }
+.container { max-width: 1000px; margin: 0 auto; padding-bottom: 40px; }
+
+/* MODALES */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.65);
+  display: flex; justify-content: center; align-items: center;
+  padding: 20px; z-index: 9999;
+}
+.hidden { display: none; }
+.modal-box {
+  background: var(--color-card-bg);
+  width: 95%; max-width: 650px; max-height: 90vh;
+  overflow-y: auto; padding: 25px; border-radius: 18px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  position: relative; text-align: justify;
+  animation: fadeIn 0.25s ease-out;
+  scroll-behavior: smooth; 
+}
+
+.modal-close {
+  position: absolute; top: 12px; right: 12px;
+  border: none; background: #ff5252; color: white;
+  padding: 5px 10px; border-radius: 50%; width: 34px; height: 34px;
+  cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; z-index: 10;
+}
+
+/* NAVEGACION */
+.nav-buttons-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; padding-right: 40px; 
+    background: var(--color-background); padding: 10px; border-radius: 12px;
+}
+.nav-btn {
+    background: var(--color-card-bg); border: 1px solid var(--color-border);
+    padding: 8px 16px; border-radius: 20px; cursor: pointer;
+    font-weight: 600; color: var(--color-text); transition: 0.2s;
+    display: flex; align-items: center; gap: 8px;
+}
+.nav-btn:hover { background: var(--color-primary-end); color: white; border-color: var(--color-primary-end); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; background: #ccc; color: #666; }
+.nav-counter { font-size: 13px; font-weight: bold; color: var(--color-primary-end); }
+
+/* TITULOS */
+h3 { color: var(--color-primary-end) !important; text-transform: uppercase !important; font-weight: 900; }
+h4 { color: var(--color-primary-end) !important; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-top: 15px; }
+
+/* INPUTS */
+.input-wrapper { position: relative; width: 100%; margin-bottom: 14px; }
+.input-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--color-primary-end); font-size: 16px; pointer-events: none; }
+.input-wrapper.textarea-wrapper i { top: 20px; transform: none; }
+.input, textarea.input, select.input { width: 100%; padding: 13px 13px 13px 45px; border-radius: 10px; border: 1px solid var(--color-border); background: var(--color-background); font-size: 15px; }
+
+/* HERO UI */
+.large-logo-hero { background: var(--color-card-bg); padding: 40px 20px; margin: 20px auto; border-radius: 20px; }
+.massive-logo-img { width: 270px; display: block; margin: 0 auto; }
+.hero-title { margin-top: 15px; font-size: 28px; font-weight: 800; background: linear-gradient(45deg, #ff5252, #ff8a65); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* BOTONES MENU */
+.main-menu-buttons { display: flex; gap: 15px; justify-content: center; margin-top: 25px; flex-wrap: wrap; }
+.equal-button { flex-grow: 1; flex-basis: 150px; max-width: 250px; }
+.btn-action, .menu-metric-btn { padding: 15px 10px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; color: white; display: flex; flex-direction: column; gap: 5px; font-size: 14px; }
+.report-btn { background: var(--gradient-report); }
+.metric-reports { background: var(--color-metric-reports-bg); color: #3a2e0a; }
+.online { background: var(--color-metric-online-bg); }
+
+.card { background: var(--color-card-bg); padding: 30px; border-radius: 18px; margin: 20px auto; max-width: 600px; text-align: left; box-shadow: 0 0 14px rgba(0,0,0,0.08); }
+.card h3 { font-size: 22px; border-bottom: 2px solid var(--color-border); padding-bottom: 8px; margin-bottom: 18px; }
+.btn-primary { width: 100%; padding: 15px; background: var(--gradient-report); border-radius: 10px; border: none; font-size: 17px; font-weight: 700; color: white; cursor: pointer; margin-top: 10px; }
+.msg { margin-top: 12px; padding: 12px; border-radius: 8px; text-align: center; font-weight: 600; }
+
+/* PODIO */
+.podio-container { display: flex; justify-content: center; gap: 25px; margin: 30px 0; text-align: center; }
+.podio-item { 
+    background: var(--color-card-bg); border-radius: 15px; padding: 15px; width: 130px; 
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15); border: 1px solid var(--color-border);
+    cursor: pointer; transition: transform 0.2s;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.podio-item:hover { transform: scale(1.05); } 
+.podio-rank { font-size: 28px; margin-bottom: 5px; } 
+.podio-name { font-size: 14px; font-weight: 800; text-transform: uppercase; color: var(--color-text); margin: 5px 0; line-height: 1.2; }
+.podio-stats { font-size: 12px; color: var(--color-primary-end); font-weight: 600; margin-bottom: 4px; }
+.podio-location { font-size: 11px; text-transform: uppercase; opacity: 0.7; border-top: 1px solid var(--color-border); padding-top: 4px; width: 100%; }
+.podio-1 { background: linear-gradient(#ffd700, #e6c200); transform: translateY(-15px); }
+.podio-2 { background: linear-gradient(#c0c0c0, #a8a8a8); }
+.podio-3 { background: linear-gradient(#cd7f32, #a56a29); }
+
+/* TARJETAS */
+.post-card-compact { background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: transform 0.20s ease; text-align: left; cursor: pointer;}
+.post-card-compact:hover { transform: translateY(-3px); }
+.name { font-size: 16px; font-weight: 700; color: var(--color-primary-end); }
+.location { display: block; margin: 4px 0 8px; opacity: 0.7; }
+.stars { display: flex; gap:6px; margin:8px 0 10px; }
+.star { font-size:18px; color: #cfcfcf; transition: 0.2s; }
+.star.active { color: #ffb400; }
+.star:hover { color: #ffe600; transform: scale(1.2); }
+
+/* COMENTARIOS */
+.comments-section { margin-top: 20px; }
+.comments-list { max-height: 250px; overflow-y: auto; margin-bottom: 15px; padding: 10px; background: var(--color-background); border-radius: 12px; border: 1px solid var(--color-border); }
+.comment-item { margin-bottom: 12px; padding: 10px; background: var(--color-card-bg); border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 14px; }
+.comment-meta { font-size: 11px; opacity: 0.6; margin-bottom: 4px; display: flex; justify-content: space-between; }
+.comment-form { display: flex; gap: 10px; }
+.comment-form input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid var(--color-border); background: var(--color-card-bg); color: var(--color-text); }
+.comment-form button { background: var(--color-primary-end); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+/* ADMIN */
+.admin-row { display: flex; justify-content: space-between; align-items: center; background: var(--color-background); padding: 10px; margin-bottom: 8px; border-radius: 8px; border: 1px solid var(--color-border); }
+.admin-actions { display: flex; gap: 5px; }
+.btn-admin-edit { background: #3498db; color: white; border:none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+.btn-admin-del { background: #e74c3c; color: white; border:none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+.edit-area { background: #f0f0f0; padding: 15px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; }
+.dark-mode .edit-area { background: #333; border-color: #444; }
+
+#loadingIndicator { display:none; margin:10px auto; color: var(--color-primary-end); font-weight:bold; }
+
+@media (max-width: 600px) {
+    .card { padding: 22px; }
+    .hero-title { font-size: 23px; }
+    .massive-logo-img { width: 190px; }
+    .podio-container { flex-direction: column; align-items: center; gap: 12px; }
+    .podio-item { width: 100%; max-width: 200px; transform: none !important; }
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="report-icon"><i class="fas fa-user-secret"></i></div>
+    <strong></strong>
+    <button id="toggleDark" class="toggle-btn"><i class="fas fa-moon"></i></button>
+</nav>
+
+<div class="container">
+    <div class="large-logo-hero fade-in">
+        <img src="logo.png" class="massive-logo-img" alt="Logo">
+        <h1 class="hero-title">REGISTRO PROVINCIAL DE INFIELES BARRANCA</h1>
+        <p class="hero-subtitle">“En Barranca todos se conocen, pero aquí nadie te reconoce.”</p>
+
+        <div class="main-menu-buttons">
+            <button id="mainReportBtn" class="btn-action report-btn equal-button">
+                <i class="fas fa-plus"></i> REPORTAR INFIEL
+            </button>
+            <button class="menu-metric-btn metric-reports equal-button">
+                <i class="fas fa-eye"></i>
+                <span id="reportCount">0 LISTA DE INFIELES</span>
+            </button>
+            <button class="menu-metric-btn online equal-button">
+                <i class="fas fa-users"></i>
+                <span id="onlineCount">5 PERSONAS EN LINEA</span>
+            </button>
+        </div>
+        <br>
+        <h3>🏆 LOS INFIELES MAS VOTADOS</h3>
+        <div id="podioTop3" class="podio-container"></div>
+    </div>
+
+    <div class="card fade-in">
+        <h3>LISTA DE INFIELES</h3> 
+        <div class="input-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="liveSearchInput" class="input" placeholder="Buscar a tu infiel ..." style="margin-bottom:15px;">
+        </div>
+        <div id="loadingIndicator"><i class="fas fa-spinner fa-spin"></i> Cargando datos...</div>
+        <div id="posts"></div>
+    </div>
+</div>
+
+<footer class="footer" style="padding:20px; opacity:0.6; font-size:14px; display:flex; justify-content:center; align-items:center;">
+    <span>copyright © 2025 BARRANCA</span>
+    <i class="fas fa-lock" id="btnAdminTrigger" style="margin-left:15px; cursor:pointer;" title="Admin"></i>
+</footer>
+
+<div id="modalInfiel" class="modal-overlay hidden">
+  <div class="modal-box">
+    <button class="modal-close" id="closeModal">✖</button>
+    <h3><i class="fas fa-exclamation-triangle section-icon"></i> 🚨 REPORTAR INFIEL</h3>
+    <form id="modalForm" style="text-align: justify;">
+      <div class="input-wrapper"><i class="fas fa-signature"></i><input class="input" type="text" placeholder="Nombres *" required></div>
+      <div class="input-wrapper"><i class="fas fa-signature"></i><input class="input" type="text" placeholder="Apellidos *" required></div>
+      <div class="input-wrapper"><i class="fas fa-venus-mars"></i><select class="input" required><option value="">Sexo *</option><option>HOMBRE</option><option>MUJER</option></select></div>
+      <div class="input-wrapper"><i class="fas fa-birthday-cake"></i><input class="input" type="number" placeholder="Edad *" required></div>
+      <div class="input-wrapper"><i class="fas fa-map-signs"></i><select class="input" required><option value="">Distrito *</option><option>BARRANCA</option><option>SUPE</option><option>PATIVILCA</option><option>PARAMONGA</option><option>SUPE PUERTO</option></select></div>
+      <div class="input-wrapper textarea-wrapper"><i class="fas fa-pen"></i><textarea class="input" rows="5" minlength="30" placeholder="Describe lo sucedido... (mínimo 30 caracteres)" required></textarea></div>
+      <div class="input-wrapper"><i class="fas fa-link"></i><input class="input" type="text" placeholder="Enlaces externos (URLs)"></div>
+      <div class="input-wrapper"><i class="fas fa-at"></i><input class="input" type="email" placeholder="Contacto (Opcional)"></div>
+      <label style="display:flex;gap:10px;margin-top:10px;font-size:13px;"><input type="checkbox" required><span>Acepto términos y condiciones.</span></label>
+      <button class="btn-primary" type="submit">PUBLICAR</button>
+      <div id="modalMsg" class="msg"></div>
+    </form>
+  </div>
+</div>
+
+<div id="viewModal" class="modal-overlay hidden">
+  <div class="modal-box" id="viewModalBox">
+    <button id="closeViewModal" class="modal-close">✖</button>
+    <div class="nav-buttons-top">
+        <button id="btnPrev" class="nav-btn">Anterior</button>
+        <span id="navCounter" class="nav-counter">--</span>
+        <button id="btnNext" class="nav-btn">Siguiente</button>
+    </div>
+    <h3 id="viewName"></h3>
+    <small id="viewLocation"></small>
+    <p id="viewText"></p>
+    <hr style="margin:15px 0;">
+    <p><strong>Distrito:</strong> <span id="viewDistrito"></span> | <strong>Edad:</strong> <span id="viewEdad"></span></p>
+    <div id="viewEnlacesBox" style="margin-top:10px;"></div>
+    <div class="comments-section">
+        <h4>COMENTARIOS</h4>
+        <div id="commentsList" class="comments-list"></div>
+        <form id="commentForm" class="comment-form">
+            <input type="text" id="newCommentInput" placeholder="Comentar..." required autocomplete="off">
+            <button type="submit"><i class="fas fa-paper-plane"></i></button>
+        </form>
+    </div>
+  </div>
+</div>
+
+<div id="loginModal" class="modal-overlay hidden">
+    <div class="modal-box" style="max-width: 400px; text-align: center;">
+        <button class="modal-close" onclick="document.getElementById('loginModal').classList.add('hidden')">✖</button>
+        <h3>🔐 ACCESO ADMINISTRADOR</h3>
+        <p style="font-size:14px; margin-bottom:15px;">Ingresa tus credenciales de Supabase</p>
+        <div class="input-wrapper"><i class="fas fa-envelope"></i><input id="loginEmail" class="input" type="email" placeholder="admin@correo.com"></div>
+        <div class="input-wrapper"><i class="fas fa-lock"></i><input id="loginPass" class="input" type="password" placeholder="Contraseña"></div>
+        <button id="btnLoginAction" class="btn-primary">ENTRAR</button>
+        <div id="loginMsg" class="msg" style="color: red;"></div>
+    </div>
+</div>
+
+<div id="adminModal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <button class="modal-close" id="closeAdminModal">✖</button>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>PANEL ADMIN</h3>
+            <button id="btnLogout" style="background:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Salir</button>
+        </div>
+        
+        <div id="adminEditContainer" class="hidden">
+            <div class="edit-area">
+                <input type="hidden" id="adminEditId">
+                <input class="input" id="adminEditName" type="text" placeholder="Nombre">
+                <select class="input" id="adminEditDistrito" style="margin-top:5px;"><option>BARRANCA</option><option>SUPE</option><option>PATIVILCA</option><option>PARAMONGA</option><option>SUPE PUERTO</option></select>
+                <textarea class="input" id="adminEditText" rows="3" style="margin-top:5px;"></textarea>
+                <button class="btn-primary" id="adminSaveBtn" style="margin-top:10px;">GUARDAR</button>
+                <button class="btn-primary" id="adminCancelBtn" style="background:#95a5a6; margin-top:5px;">CANCELAR</button>
+            </div>
+        </div>
+        <div id="adminListContainer" style="margin-top:20px;"></div>
+    </div>
+</div>
+
+<script>
+// CONEXIÓN SEGURA
+const SUPABASE_URL = 'https://mkjnmyrdaxyhecaeunex.supabase.co'; 
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ram5teXJkYXh5aGVjYWV1bmV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3MzA0NDUsImV4cCI6MjA4MDMwNjQ0NX0.ePq16f4osGg2h5MSl_fu-O1ATEVam6GI3c0LRi4Lwlo'; 
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+document.addEventListener("DOMContentLoaded", async () => {
+  let confessions = [];
+  let voters = JSON.parse(localStorage.getItem("voters") || "[]");
+  let currentIndex = -1; 
+
+  const postsContainer = document.getElementById("posts");
+  const reportCountEl = document.getElementById("reportCount");
+  const podioContainer = document.getElementById("podioTop3");
+  const loading = document.getElementById("loadingIndicator");
+  
+  // Modals
+  const modal = document.getElementById("modalInfiel");
+  const viewModal = document.getElementById("viewModal");
+  const loginModal = document.getElementById("loginModal");
+  const adminModal = document.getElementById("adminModal");
+
+  await fetchConfessions();
+
+  // 1. CARGAR DATOS
+  async function fetchConfessions() {
+    loading.style.display = 'block';
+    postsContainer.innerHTML = '';
+    const { data, error } = await supabase.from('infieles').select('*').order('created_at', { ascending: false });
+    loading.style.display = 'none';
+    if (!error) {
+        confessions = data || [];
+        renderAll();
+    }
+  }
+
+  function renderPost(post) {
+    const div = document.createElement("div");
+    div.className="post-card-compact"; 
+    div.dataset.id = post.id;
+    const fecha = new Date(post.created_at).toLocaleDateString();
+    
+    let starsHTML = `<div class="stars" data-id="${post.id}">`;
+    for (let i = 1; i <= 5; i++) {
+      const filled = i <= (post.rating || 0);
+      starsHTML += `<span class="star ${filled?'active':''}" data-id="${post.id}" data-value="${i}">★</span>`;
+    }
+    starsHTML += ` <small>(${post.votes || 0})</small></div>`;
+
+    div.innerHTML = `
+      ${starsHTML}
+      <strong class="name">${escapeHtml(post.tag)}</strong>
+      <small class="location">📍 ${escapeHtml(post.distrito)} · ${fecha}</small>
+      <p>${escapeHtml(post.text).substring(0, 100)}...</p>
+    `;
+    postsContainer.appendChild(div);
+  }
+
+  function renderAll(list = null) {
+    postsContainer.innerHTML = '';
+    (list || confessions).forEach(renderPost);
+    reportCountEl.textContent = `${confessions.length} REGISTRADOS`;
+    updatePodio();
+  }
+
+  function updatePodio() {
+    if (!podioContainer) return;
+    const top3 = [...confessions].sort((a,b) => (b.rating || 0) - (a.rating || 0)).slice(0,3);
+    podioContainer.innerHTML = '';
+    top3.forEach((p,i)=>{
+      const d = document.createElement('div');
+      d.className = `podio-item podio-${i+1}`;
+      d.dataset.id = p.id;
+      d.innerHTML = `<div class="podio-rank">#${i+1}</div><div class="podio-name">${escapeHtml(p.tag)}</div>`;
+      podioContainer.appendChild(d);
+    });
+  }
+
+  // 2. PUBLICAR
+  document.getElementById("modalForm").addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const inputs = document.querySelectorAll('#modalForm .input, #modalForm textarea');
+    
+    const newEntry = {
+      tag: `${inputs[0].value} ${inputs[1].value}`.trim(),
+      sexo: inputs[2].value, edad: inputs[3].value, distrito: inputs[5].value,
+      text: inputs[6].value, enlaces: inputs[7].value, correo: inputs[8].value,
+      rating: 0, votes: 0, comments: []
+    };
+
+    document.getElementById("modalMsg").textContent = "Guardando...";
+    const { error } = await supabase.from('infieles').insert([newEntry]);
+    
+    if(!error){
+        document.getElementById("modalMsg").textContent = "✅ Guardado!";
+        document.getElementById("modalForm").reset();
+        await fetchConfessions();
+        setTimeout(()=> modal.classList.add('hidden'), 1000);
+    } else {
+        document.getElementById("modalMsg").textContent = "❌ Error: " + error.message;
+    }
+  });
+
+  // 3. VOTAR
+  document.addEventListener('click', async (e)=>{
+    if (!e.target.classList.contains('star')) return;
+    const pid = Number(e.target.dataset.id);
+    const val = Number(e.target.dataset.value);
+    if (voters.includes(pid)) return;
+
+    const post = confessions.find(p=>p.id===pid);
+    if(post){
+       const { error } = await supabase.from('infieles').update({ rating: val, votes: (post.votes||0) + 1 }).eq('id', pid);
+       if(!error) { voters.push(pid); localStorage.setItem('voters', JSON.stringify(voters)); await fetchConfessions(); }
+    }
+  });
+
+  // 4. LOGIN SEGURO (NUEVO)
+  document.getElementById("btnAdminTrigger").addEventListener('click', async () => {
+      // Verificar si ya hay sesión
+      const { data: { session } } = await supabase.auth.getSession();
+      if(session) {
+          renderAdminList();
+          adminModal.classList.remove("hidden");
+      } else {
+          loginModal.classList.remove("hidden");
+      }
+  });
+
+  document.getElementById("btnLoginAction").addEventListener('click', async () => {
+      const email = document.getElementById("loginEmail").value;
+      const pass = document.getElementById("loginPass").value;
+      const msg = document.getElementById("loginMsg");
+      msg.textContent = "Verificando...";
+      
+      const { data, error } = await supabase.auth.signInWithPassword({ email: email, password: pass });
+      
+      if(error) {
+          msg.textContent = "❌ Acceso denegado: " + error.message;
+      } else {
+          msg.textContent = "";
+          loginModal.classList.add("hidden");
+          renderAdminList();
+          adminModal.classList.remove("hidden");
+      }
+  });
+
+  document.getElementById("btnLogout").addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      adminModal.classList.add("hidden");
+      alert("Sesión cerrada");
+  });
+
+  // 5. ADMIN (DELETE/UPDATE)
+  function renderAdminList() {
+    const c = document.getElementById("adminListContainer");
+    c.innerHTML = "";
+    confessions.forEach(p => {
+        c.innerHTML += `
+          <div class="admin-row">
+              <small>${escapeHtml(p.tag)}</small>
+              <div class="admin-actions">
+                  <button class="btn-admin-edit" onclick="setupEdit(${p.id})">✏️</button>
+                  <button class="btn-admin-del" onclick="deletePostAdmin(${p.id})">🗑️</button>
+              </div>
+          </div>`;
+    });
+  }
+
+  window.deletePostAdmin = async (id) => {
+      if(confirm("¿BORRAR DE BASE DE DATOS?")) {
+          const { error } = await supabase.from('infieles').delete().eq('id', id);
+          if(!error) { await fetchConfessions(); renderAdminList(); } 
+          else { alert("No tienes permiso o hubo error: " + error.message); }
+      }
+  };
+
+  window.setupEdit = (id) => {
+      const p = confessions.find(x => x.id == id);
+      document.getElementById("adminEditId").value = p.id;
+      document.getElementById("adminEditName").value = p.tag;
+      document.getElementById("adminEditDistrito").value = p.distrito;
+      document.getElementById("adminEditText").value = p.text;
+      document.getElementById("adminEditContainer").classList.remove("hidden");
+  };
+
+  document.getElementById("adminSaveBtn").addEventListener('click', async () => {
+      const id = document.getElementById("adminEditId").value;
+      const updates = {
+          tag: document.getElementById("adminEditName").value,
+          distrito: document.getElementById("adminEditDistrito").value,
+          text: document.getElementById("adminEditText").value
+      };
+      
+      const { error } = await supabase.from('infieles').update(updates).eq('id', id);
+      if(!error) {
+          alert("Editado.");
+          document.getElementById("adminEditContainer").classList.add("hidden");
+          await fetchConfessions();
+          renderAdminList();
+      } else {
+          alert("Error: " + error.message);
+      }
+  });
+
+  document.getElementById("adminCancelBtn").addEventListener('click', ()=>document.getElementById("adminEditContainer").classList.add("hidden"));
+
+  // UI Helpers
+  document.getElementById("mainReportBtn").addEventListener('click', ()=>modal.classList.remove('hidden'));
+  document.getElementById("closeModal").addEventListener('click', ()=>modal.classList.add('hidden'));
+  document.getElementById("closeAdminModal").addEventListener('click', ()=>adminModal.classList.add('hidden'));
+  document.getElementById("closeViewModal").addEventListener('click', ()=>viewModal.classList.add('hidden'));
+
+  // View Details Logic
+  document.addEventListener("click", (e) => {
+    const card = e.target.closest(".post-card-compact") || e.target.closest(".podio-item");
+    if (!card || e.target.closest(".star") || e.target.closest(".btn-admin-edit") || e.target.closest(".btn-admin-del")) return;
+    
+    const id = card.dataset.id;
+    currentIndex = confessions.findIndex(p => p.id == id);
+    loadModalData(currentIndex);
+    viewModal.classList.remove("hidden");
+  });
+
+  function loadModalData(idx) {
+      const p = confessions[idx];
+      if(!p) return;
+      document.getElementById("viewName").textContent = p.tag;
+      document.getElementById("viewLocation").textContent = p.distrito;
+      document.getElementById("viewText").textContent = p.text;
+      document.getElementById("viewDistrito").textContent = p.distrito;
+      document.getElementById("viewEdad").textContent = p.edad;
+      
+      const linkBox = document.getElementById("viewEnlacesBox");
+      linkBox.innerHTML = p.enlaces ? `<a href="${p.enlaces}" target="_blank">Ver pruebas</a>` : "";
+
+      const cl = document.getElementById("commentsList");
+      cl.innerHTML = "";
+      if(p.comments && p.comments.length) {
+          p.comments.forEach(c => cl.innerHTML += `<div class="comment-item"><strong>Anon:</strong> ${escapeHtml(c.text)}</div>`);
+      } else { cl.innerHTML = "<small>Sin comentarios</small>"; }
+  }
+
+  // Comentarios
+  document.getElementById("commentForm").addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const txt = document.getElementById("newCommentInput").value;
+      if(!txt) return;
+
+      const post = confessions[currentIndex];
+      const newComm = { text: txt, date: new Date().toISOString() };
+      const updatedComments = [...(post.comments || []), newComm];
+
+      const { error } = await supabase.from('infieles').update({ comments: updatedComments }).eq('id', post.id);
+
+      if(!error) {
+          document.getElementById("newCommentInput").value = "";
+          post.comments = updatedComments; 
+          loadModalData(currentIndex);
+      }
+  });
+
+  function escapeHtml(str) { return str ? String(str).replace(/[&<>"']/g, s => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]) : ''; }
+  
+  document.getElementById("liveSearchInput").addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      renderAll(confessions.filter(p => p.tag.toLowerCase().includes(q)));
+  });
+});
+</script>
+</body>
+</html>
