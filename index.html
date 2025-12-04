@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>REGISTRO PROVINCIAL DE INFIELES BARRANCA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<style>
+/* =========================================================================
+   ESTILOS (CSS)
+   ========================================================================= */
+:root {
+    --color-background: #f7f7f7;
+    --color-text: #2c3e50;
+    --color-card-bg: #ffffff;
+    --color-border: #e6e6e6;
+    --color-primary-start: #ff8a65;
+    --color-primary-end: #ff5252; /* ROJO */
+    --gradient-report: linear-gradient(to right, #ff5252, #f53d2d);
+    --body-background-light: linear-gradient(135deg, #f7f7f7, #ffeaea);
+    --color-metric-reports-bg: #ffc107;
+    --color-metric-online-bg: #2ecc71;
+}
+
+.dark-mode {
+    --color-background: #1e1e1e;
+    --color-text: #eaeaea;
+    --color-card-bg: #2b2b2b;
+    --color-border: #3a3a3a;
+    --body-background-dark: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background: var(--body-background-light);
+    transition: background 0.5s, color 0.5s;
+    color: var(--color-text);
+    font-family: 'Segoe UI', sans-serif;
+    text-align: center;
+    line-height: 1.7;
+}
+.dark-mode body { background: var(--body-background-dark); }
+
+/* NAV Y HERO */
+.navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--color-card-bg); padding: 15px 20px; border-bottom: 1px solid var(--color-border);
+}
+.report-icon { color: var(--color-primary-end); font-size: 22px; }
+.toggle-btn { background: none; border: none; cursor: pointer; font-size: 22px; color: var(--color-text); }
+.container { max-width: 1000px; margin: 0 auto; padding-bottom: 40px; }
+
+/* MODALES */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.65);
+  display: flex; justify-content: center; align-items: center;
+  padding: 20px; z-index: 9999;
+}
+.hidden { display: none; }
+.modal-box {
+  background: var(--color-card-bg);
+  width: 95%; max-width: 650px; max-height: 90vh;
+  overflow-y: auto; padding: 25px; border-radius: 18px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  position: relative; text-align: justify;
+  animation: fadeIn 0.25s ease-out;
+  scroll-behavior: smooth; 
+}
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+
+.modal-close {
+  position: absolute; top: 12px; right: 12px;
+  border: none; background: #ff5252; color: white;
+  padding: 5px 10px; border-radius: 50%; width: 34px; height: 34px;
+  cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; z-index: 10;
+}
+
+/* NAVEGACION */
+.nav-buttons-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; padding-right: 40px; 
+    background: var(--color-background); padding: 10px; border-radius: 12px;
+}
+.nav-btn {
+    background: var(--color-card-bg); border: 1px solid var(--color-border);
+    padding: 8px 16px; border-radius: 20px; cursor: pointer;
+    font-weight: 600; color: var(--color-text); transition: 0.2s;
+    display: flex; align-items: center; gap: 8px;
+}
+.nav-btn:hover { background: var(--color-primary-end); color: white; border-color: var(--color-primary-end); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; background: #ccc; color: #666; }
+.nav-counter { font-size: 13px; font-weight: bold; color: var(--color-primary-end); }
+
+/* TITULOS */
+h3 { color: var(--color-primary-end) !important; text-transform: uppercase !important; font-weight: 900; }
+h4 { color: var(--color-primary-end) !important; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-top: 15px; }
+
+/* INPUTS CON ICONOS */
+.input-wrapper { position: relative; width: 100%; margin-bottom: 14px; }
+.input-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--color-primary-end); font-size: 16px; pointer-events: none; }
+.input-wrapper.textarea-wrapper i { top: 20px; transform: none; }
+.input, textarea.input, select.input { width: 100%; padding: 13px 13px 13px 45px; border-radius: 10px; border: 1px solid var(--color-border); background: var(--color-background); font-size: 15px; }
+
+/* ESTILOS FILTROS (NUEVO) */
+.filters-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap; 
+}
+.filter-box {
+    position: relative;
+    flex: 1; 
+    min-width: 140px;
+}
+.filter-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-primary-end);
+    font-size: 14px;
+    pointer-events: none;
+}
+.filter-input {
+    width: 100%;
+    padding: 10px 10px 10px 35px !important;
+    font-size: 13px;
+    border-radius: 8px;
+    background: var(--color-background);
+    cursor: pointer;
+}
+
+/* GENERAL UI */
+.large-logo-hero { background: var(--color-card-bg); padding: 40px 20px; margin: 20px auto; border-radius: 20px; }
+.massive-logo-img { width: 270px; display: block; margin: 0 auto; }
+.hero-title { margin-top: 15px; font-size: 28px; font-weight: 800; background: linear-gradient(45deg, #ff5252, #ff8a65); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* BOTONES MENU (CENTRADOS) */
+.main-menu-buttons { 
+    display: flex; 
+    gap: 15px; 
+    justify-content: center; 
+    margin-top: 25px; 
+    flex-wrap: wrap; 
+}
+.equal-button { flex-grow: 1; flex-basis: 150px; max-width: 250px; }
+.btn-action, .menu-metric-btn { padding: 15px 10px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; color: white; display: flex; flex-direction: column; gap: 5px; font-size: 14px; }
+.report-btn { background: var(--gradient-report); }
+.metric-reports { background: var(--color-metric-reports-bg); color: #3a2e0a; }
+.online { background: var(--color-metric-online-bg); }
+
+.card { background: var(--color-card-bg); padding: 30px; border-radius: 18px; margin: 20px auto; max-width: 600px; text-align: left; box-shadow: 0 0 14px rgba(0,0,0,0.08); }
+.card h3 { font-size: 22px; border-bottom: 2px solid var(--color-border); padding-bottom: 8px; margin-bottom: 18px; }
+
+.btn-primary { width: 100%; padding: 15px; background: var(--gradient-report); border-radius: 10px; border: none; font-size: 17px; font-weight: 700; color: white; cursor: pointer; margin-top: 10px; }
+.msg { margin-top: 12px; padding: 12px; border-radius: 8px; text-align: center; font-weight: 600; }
+
+/* PODIO */
+.podio-container { display: flex; justify-content: center; gap: 25px; margin: 30px 0; text-align: center; }
+.podio-item { 
+    background: var(--color-card-bg); border-radius: 15px; padding: 15px; width: 130px; 
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15); border: 1px solid var(--color-border);
+    cursor: pointer; transition: transform 0.2s;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.podio-item:hover { transform: scale(1.05); } 
+.podio-rank { font-size: 28px; margin-bottom: 5px; } 
+
+.podio-name {
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--color-text);
+    margin: 5px 0;
+    line-height: 1.2;
+}
+.podio-stats {
+    font-size: 12px;
+    color: var(--color-primary-end);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.podio-location {
+    font-size: 11px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    border-top: 1px solid var(--color-border);
+    padding-top: 4px;
+    width: 100%;
+}
+
+.podio-1 { background: linear-gradient(#ffd700, #e6c200); transform: translateY(-15px); }
+.podio-2 { background: linear-gradient(#c0c0c0, #a8a8a8); }
+.podio-3 { background: linear-gradient(#cd7f32, #a56a29); }
+
+/* TARJETAS */
+.post-card-compact { background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: transform 0.20s ease; text-align: left; cursor: pointer;}
+.post-card-compact:hover { transform: translateY(-3px); }
+.name { font-size: 16px; font-weight: 700; color: var(--color-primary-end); }
+.location { display: block; margin: 4px 0 8px; opacity: 0.7; }
+.stars { display: flex; gap:6px; margin:8px 0 10px; }
+.star { font-size:18px; color: #cfcfcf; transition: 0.2s; }
+.star.active { color: #ffb400; }
+.star:hover { color: #ffe600; transform: scale(1.2); }
+
+/* COMENTARIOS */
+.comments-section { margin-top: 20px; }
+.comments-list { max-height: 250px; overflow-y: auto; margin-bottom: 15px; padding: 10px; background: var(--color-background); border-radius: 12px; border: 1px solid var(--color-border); }
+.comment-item { margin-bottom: 12px; padding: 10px; background: var(--color-card-bg); border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 14px; }
+.comment-meta { font-size: 11px; opacity: 0.6; margin-bottom: 4px; display: flex; justify-content: space-between; }
+.comment-form { display: flex; gap: 10px; }
+.comment-form input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid var(--color-border); background: var(--color-card-bg); color: var(--color-text); }
+.comment-form button { background: var(--color-primary-end); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+/* ADJUNTOS */
+.adjunto-pdf { width: 100%; height: 450px; border-radius: 10px; border: 1px solid var(--color-border); margin-top: 10px; }
+.adjunto-img { width: 100%; border-radius: 10px; border: 1px solid var(--color-border); margin-top: 10px; }
+
+/* ESTILOS ADMIN */
+.admin-row { 
+    display: flex; justify-content: space-between; align-items: center; 
+    background: var(--color-background); padding: 10px; 
+    margin-bottom: 8px; border-radius: 8px; border: 1px solid var(--color-border);
+}
+.admin-actions { display: flex; gap: 5px; }
+.btn-admin-edit { background: #3498db; color: white; border:none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+.btn-admin-del { background: #e74c3c; color: white; border:none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+.edit-area { background: #f0f0f0; padding: 15px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ddd; }
+.dark-mode .edit-area { background: #333; border-color: #444; }
+
+@media (max-width: 600px) {
+    .filters-container { flex-direction: column; gap: 8px; }
+    .card { padding: 22px; }
+    .hero-title { font-size: 23px; }
+    .massive-logo-img { width: 190px; }
+    .podio-container { flex-direction: column; align-items: center; gap: 12px; }
+    .podio-item { width: 100%; max-width: 200px; transform: none !important; }
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="report-icon"><i class="fas fa-user-secret"></i></div>
+    <strong></strong>
+    <button id="toggleDark" class="toggle-btn"><i class="fas fa-moon"></i></button>
+</nav>
+
+<div class="container">
+    <div class="large-logo-hero fade-in">
+        <img src="logo.png" class="massive-logo-img" alt="Logo">
+        <h1 class="hero-title">REGISTRO PROVINCIAL DE INFIELES BARRANCA</h1>
+        <p class="hero-subtitle">“En Barranca todos se conocen, pero aquí nadie te reconoce.”</p>
+
+        <div class="main-menu-buttons">
+            <button id="mainReportBtn" class="btn-action report-btn equal-button">
+                <i class="fas fa-plus"></i> REPORTAR INFIEL
+            </button>
+
+            <button class="menu-metric-btn metric-reports equal-button">
+                <i class="fas fa-eye"></i>
+                <span id="reportCount">0 LISTA DE INFIELES</span>
+            </button>
+
+            <button class="menu-metric-btn online equal-button">
+                <i class="fas fa-users"></i>
+                <span id="onlineCount">5 PERSONAS EN LINEA</span>
+            </button>
+        </div>
+        <br>
+        <h3>🏆 LOS INFIELES MAS VOTADOS</h3>
+        <div id="podioTop3" class="podio-container"></div>
+    </div>
+
+    <div class="card fade-in">
+        <h3>LISTA DE INFIELES</h3> 
+        
+        <div class="input-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="liveSearchInput" class="input" placeholder="Buscar a tu infiel ..." style="margin-bottom:15px;">
+        </div>
+
+        <div class="filters-container">
+            <div class="filter-box">
+                <i class="fas fa-map-marker-alt"></i>
+                <select id="filterDistrito" class="input filter-input">
+                    <option value="TODOS">Todos los Distritos</option>
+                    <option value="BARRANCA">BARRANCA</option>
+                    <option value="SUPE">SUPE</option>
+                    <option value="PATIVILCA">PATIVILCA</option>
+                    <option value="PARAMONGA">PARAMONGA</option>
+                    <option value="SUPE PUERTO">SUPE PUERTO</option>
+                </select>
+            </div>
+
+            <div class="filter-box">
+                <i class="fas fa-birthday-cake"></i>
+                <select id="filterEdad" class="input filter-input">
+                    <option value="TODOS">Cualquier Edad</option>
+                    <option value="range1">Jóvenes (18-24)</option>
+                    <option value="range2">Adultos (25-35)</option>
+                    <option value="range3">Maduros (36-50)</option>
+                    <option value="range4">Mayores (50+)</option>
+                </select>
+            </div>
+
+            <div class="filter-box">
+                <i class="fas fa-sort-amount-down"></i>
+                <select id="filterOrden" class="input filter-input">
+                    <option value="recientes">Más Recientes</option>
+                    <option value="antiguos">Más Antiguos</option>
+                    <option value="votos_mayor">Más Votados 🔥</option>
+                    <option value="votos_menor">Menos Votados</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="loadingIndicator" style="display:none; text-align:center; margin:10px; color:#ff5252; font-weight:bold;">
+            <i class="fas fa-spinner fa-spin"></i> Cargando datos...
+        </div>
+        <div id="posts"></div>
+    </div>
+</div>
+
+<footer class="footer" style="padding:20px; opacity:0.6; font-size:14px; display:flex; justify-content:center; align-items:center;">
+    <span>copyright © 2025 BARRANCA</span>
+    <i class="fas fa-lock" id="btnAdminTrigger" style="margin-left:15px; cursor:pointer;" title="Admin"></i>
+</footer>
+
+<div id="modalInfiel" class="modal-overlay hidden">
+  <div class="modal-box">
+    <button class="modal-close" id="closeModal">✖</button>
+
+    <h3><i class="fas fa-exclamation-triangle section-icon"></i> 🚨 REPORTAR INFIEL</h3>
+    <p style="color:#c0392b; font-weight:600; margin-bottom:20px; font-size: 14px; line-height: 1.5;">
+     IMPORTANTE: Completa este formulario para registrar públicamente a una persona infiel Este proceso es 100% anónimo. Todos los campos marcados con * son obligatorios.
+    </p>
+
+    <form id="modalForm" style="text-align: justify;">
+      <h4><i class="fas fa-user"></i> DATOS DEL INFIEL</h4>
+      
+      <div class="input-wrapper">
+          <i class="fas fa-signature"></i>
+          <input class="input" type="text" placeholder="Nombres *" required>
+      </div>
+
+      <div class="input-wrapper">
+          <i class="fas fa-signature"></i>
+          <input class="input" type="text" placeholder="Apellidos *" required>
+      </div>
+
+      <div class="input-wrapper">
+          <i class="fas fa-venus-mars"></i>
+          <select class="input" required>
+            <option value="">Sexo *</option>
+            <option>HOMBRE</option>
+            <option>MUJER</option>
+          </select>
+      </div>
+
+      <div class="input-wrapper">
+          <i class="fas fa-birthday-cake"></i>
+          <input class="input" type="number" placeholder="Edad *" min="13" max="99" required>
+      </div>
+
+      <h4 style="margin-top:18px;"><i class="fas fa-map-marker-alt"></i>  UBICACION EN BARRANCA</h4>
+      
+      <div class="input-wrapper">
+          <i class="fas fa-map-pin"></i>
+          <select class="input" disabled>
+            <option value="BARRANCA">BARRANCA</option>
+          </select>
+      </div>
+
+      <div class="input-wrapper">
+          <i class="fas fa-map-signs"></i>
+          <select class="input" required>
+            <option value="">Distrito *</option>
+            <option>BARRANCA</option>
+            <option>SUPE</option>
+            <option>PATIVILCA</option>
+            <option>PARAMONGA</option>
+            <option>SUPE PUERTO</option>
+          </select>
+      </div>
+
+      <h4 style="margin-top:18px;"><i class="fas fa-comment-dots"></i>  TESTIMONIO / MOTIVO DEL REPORTE *</h4>
+      
+      <div class="input-wrapper textarea-wrapper">
+          <i class="fas fa-pen"></i>
+          <textarea class="input" rows="5" minlength="30" placeholder="Describe lo sucedido... (mínimo 30 caracteres)" required></textarea>
+      </div>
+
+      <h4 style="margin-top:18px;"><i class="fas fa-paperclip"></i> FOTO DE EVIDENCIA</h4>
+      
+      <div class="input-wrapper">
+          <i class="fas fa-file-upload"></i>
+          <input class="input" type="file" accept="image/*">
+      </div>
+      
+      <div class="input-wrapper">
+          <i class="fas fa-link"></i>
+          <input class="input" type="text" placeholder="Enlaces externos (URLs)">
+      </div>
+
+      <h4 style="margin-top:18px;"><i class="fas fa-envelope"></i>  CONTACTO (OPCIONAL)</h4>
+      
+      <div class="input-wrapper">
+          <i class="fas fa-at"></i>
+          <input class="input" type="email" placeholder="tu@gmail.com">
+      </div>
+
+      <h4 style="margin-top:18px;"><i class="fas fa-balance-scale"></i>  AVISO LEGAL</h4>
+      <p style="font-size:13px; opacity:0.8; text-align:left; margin-bottom:15px; line-height: 1.5;">
+        Este sitio muestra testimonios enviados de forma anónima por usuarios. La información aquí compartida NO constituye una afirmación legal ni una verdad absoluta. Cada usuario es responsable de su testimonio y de las consecuencias legales que pueda generar. Este testimonio NO representa una acusación legal ni una sentencia hacia ninguna persona. Los datos pueden ser utilizados con fines informativos y de alerta social.
+      </p>
+
+      <label style="display:flex; gap:10px; margin-top:10px; text-align:left; font-size:13px; cursor:pointer;">
+        <input type="checkbox" required>
+        <span>He leído y acepto que este sitio muestra testimonios anónimos y que la información no constituye una verdad absoluta ni afirmación legal. *</span>
+      </label>
+
+      <label style="display:flex; gap:10px; margin-top:10px; text-align:left; font-size:13px; cursor:pointer;">
+        <input type="checkbox" required>
+        <span>Declaro que este testimonio se basa en una experiencia personal y asumo toda responsabilidad por la información enviada. Entiendo que esto NO es una acusación legal. *</span>
+      </label>
+
+      <button class="btn-primary" type="submit" style="margin-top:20px;">PUBLICAR</button>
+      <div id="modalMsg" class="msg"></div>
+    </form>
+  </div>
+</div>
+
+<div id="viewModal" class="modal-overlay hidden">
+  <div class="modal-box" id="viewModalBox">
+    <button id="closeViewModal" class="modal-close">✖</button>
+
+    <div class="nav-buttons-top">
+        <button id="btnPrev" class="nav-btn"><i class="fas fa-chevron-left"></i> Anterior</button>
+        <span id="navCounter" class="nav-counter">-- / --</span>
+        <button id="btnNext" class="nav-btn">Siguiente <i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <h3 id="viewName"></h3>
+    <small id="viewLocation"></small>
+    <p id="viewText"></p>
+
+    <h4 style="margin-top:20px;">📝 DETALLES ADICIONALES</h4>
+    <p><strong>Sexo:</strong> <span id="viewSexo"></span></p>
+    <p><strong>Edad:</strong> <span id="viewEdad"></span></p>
+    <p><strong>Distrito:</strong> <span id="viewDistrito"></span></p>
+    <p id="viewCorreoWrapper"></p> 
+
+    <h4 style="margin-top:20px;">📂 FOTO ADJUNTA</h4>
+    <div id="viewArchivos"></div>
+
+    <h4 style="margin-top:20px;">🔗 ENLACES</h4>
+    <div id="viewEnlacesBox"></div>
+
+    <div id="viewRating" style="margin-top:15px; font-weight:bold; color:#f1c40f;"></div>
+
+    <hr style="margin: 25px 0; border: 0; border-top: 1px solid var(--color-border);">
+
+    <div class="comments-section">
+        <h4><i class="fas fa-comments"></i> COMENTARIOS</h4>
+        <div id="commentsList" class="comments-list"></div>
+        <form id="commentForm" class="comment-form">
+            <input type="text" id="newCommentInput" placeholder="Escribe un comentario anónimo..." required autocomplete="off">
+            <button type="submit"><i class="fas fa-paper-plane"></i></button>
+        </form>
+    </div>
+  </div>
+</div>
+
+<div id="adminModal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <button class="modal-close" id="closeAdminModal">✖</button>
+        <h3><i class="fas fa-tools"></i> PANEL DE ADMINISTRADOR</h3>
+        <p style="font-size:13px; margin-bottom:15px;">Gestiona, edita o elimina los registros de infieles.</p>
+
+        <div id="adminEditContainer" class="hidden">
+            <div class="edit-area">
+                <h4 style="color:#2c3e50 !important; margin-top:0;">EDITANDO REGISTRO</h4>
+                <input type="hidden" id="adminEditId">
+                <div class="input-wrapper">
+                    <i class="fas fa-signature"></i>
+                    <input class="input" id="adminEditName" type="text" placeholder="Nombre completo">
+                </div>
+                <div class="input-wrapper">
+                    <i class="fas fa-map-signs"></i>
+                    <select class="input" id="adminEditDistrito">
+                        <option>BARRANCA</option>
+                        <option>SUPE</option>
+                        <option>PATIVILCA</option>
+                        <option>PARAMONGA</option>
+                        <option>SUPE PUERTO</option>
+                    </select>
+                </div>
+                <div class="input-wrapper">
+                    <i class="fas fa-pen"></i>
+                    <textarea class="input" id="adminEditText" rows="4"></textarea>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-primary" style="background:#2ecc71;" id="adminSaveBtn">GUARDAR CAMBIOS</button>
+                    <button class="btn-primary" style="background:#95a5a6;" id="adminCancelBtn">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="adminListContainer"></div>
+    </div>
+</div>
+
+<script>
+// ==========================================
+// CONFIGURACIÓN SUPABASE - CONEXION SEGURA
+// ==========================================
+const SUPABASE_URL = 'https://axmhjmhlvnvwzbolzqqn.supabase.co'; 
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4bWhqbWhsdm52d3pib2x6cXFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NDA1OTIsImV4cCI6MjA4MDQxNjU5Mn0.Wl9briU00ExZIsLMnBFav0dVEZ91_xYBCrVS5sKWHDA'; 
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+document.addEventListener("DOMContentLoaded", async () => {
+  let confessions = [];
+  let voters = JSON.parse(localStorage.getItem("voters") || "[]");
+  let currentIndex = -1; 
+
+  const postsContainer = document.getElementById("posts");
+  const reportCountEl = document.getElementById("reportCount");
+  const podioContainer = document.getElementById("podioTop3");
+  const openBtn = document.getElementById("mainReportBtn");
+  const modal = document.getElementById("modalInfiel");
+  const closeBtn = document.getElementById("closeModal");
+  const modalForm = document.getElementById("modalForm");
+  const modalMsg = document.getElementById("modalMsg");
+  const searchInput = document.getElementById("liveSearchInput");
+  const loading = document.getElementById("loadingIndicator");
+
+  // Filtros Elements
+  const filterDistrito = document.getElementById('filterDistrito');
+  const filterEdad = document.getElementById('filterEdad');
+  const filterOrden = document.getElementById('filterOrden');
+
+  // View Modal Elements
+  const viewModal = document.getElementById("viewModal");
+  const viewModalBox = document.getElementById("viewModalBox");
+  const closeViewModal = document.getElementById("closeViewModal");
+  const btnPrev = document.getElementById("btnPrev");
+  const btnNext = document.getElementById("btnNext");
+  const navCounter = document.getElementById("navCounter");
+  const commentForm = document.getElementById("commentForm");
+  const commentsList = document.getElementById("commentsList");
+  const newCommentInput = document.getElementById("newCommentInput");
+
+  // Admin Elements
+  const adminTrigger = document.getElementById("btnAdminTrigger");
+  const adminModal = document.getElementById("adminModal");
+  const closeAdminModal = document.getElementById("closeAdminModal");
+  const adminListContainer = document.getElementById("adminListContainer");
+  const adminEditContainer = document.getElementById("adminEditContainer");
+  const adminEditId = document.getElementById("adminEditId");
+  const adminEditName = document.getElementById("adminEditName");
+  const adminEditDistrito = document.getElementById("adminEditDistrito");
+  const adminEditText = document.getElementById("adminEditText");
+  const adminSaveBtn = document.getElementById("adminSaveBtn");
+  const adminCancelBtn = document.getElementById("adminCancelBtn");
+
+  // CARGAR DATOS
+  await fetchConfessions();
+
+  async function fetchConfessions() {
+    loading.style.display = 'block';
+    postsContainer.innerHTML = '';
+    
+    const { data, error } = await supabase.from('infieles').select('*').order('created_at', { ascending: false });
+
+    loading.style.display = 'none';
+
+    if (!error) {
+        confessions = data || [];
+        applyFilters(); // Usamos el filtro para renderizar
+    }
+  }
+
+  function renderPost(post) {
+    const div = document.createElement("div");
+    div.className="post-card-compact"; 
+    div.dataset.id = post.id;
+    const fecha = new Date(post.created_at).toLocaleDateString();
+    
+    // Logic: Estrellas
+    const already = voters.includes(post.id);
+    let starsHTML = `<div class="stars" data-id="${post.id}">`;
+    for (let i = 1; i <= 5; i++) {
+      const filled = i <= (post.rating || 0);
+      const cls = "star " + (filled ? "active" : "");
+      starsHTML += `<span class="${cls.trim()}" data-id="${post.id}" data-value="${i}">${filled ? '★' : '☆'}</span>`;
+    }
+    starsHTML += ` <small class="rating-count">(${post.votes || 0})</small></div>`;
+
+    div.innerHTML = `
+      ${starsHTML}
+      <strong class="name">${escapeHtml(post.tag)}</strong>
+      <small class="location">📍 ${escapeHtml(post.distrito)} · ${fecha}</small>
+      <p class="texto-fb">${escapeHtml(post.text).substring(0, 150)}...</p>
+      <div style="margin-top:8px; font-size:12px; color:#777;">
+        <i class="fas fa-comment"></i> ${post.comments ? post.comments.length : 0} comentarios
+      </div>
+    `;
+    postsContainer.appendChild(div);
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, s => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]);
+  }
+
+  function renderAll(list = null) {
+    postsContainer.innerHTML = '';
+    const dataToShow = list || confessions;
+    
+    if(dataToShow.length === 0) {
+        postsContainer.innerHTML = '<div style="opacity:0.6; margin-top:20px;">No se encontraron resultados.</div>';
+    } else {
+        dataToShow.forEach(renderPost);
+    }
+
+    reportCountEl.textContent = `${confessions.length} LISTA DE INFIELES`;
+    updatePodio(true);
+  }
+
+  // ==========================================
+  // PODIO: GANA QUIEN TIENE MAS VOTOS
+  // ==========================================
+  function updatePodio(animate = false) {
+    if (!podioContainer) return;
+    
+    // ORDENAR POR VOTOS PRIMERO
+    const top3 = [...confessions].sort((a, b) => {
+        const votosA = a.votes || 0;
+        const votosB = b.votes || 0;
+        
+        // Si B tiene más votos, gana B
+        if (votosB !== votosA) {
+            return votosB - votosA;
+        }
+        // Si empatan, gana el de más estrellas
+        return (b.rating || 0) - (a.rating || 0);
+    }).slice(0, 3);
+
+    podioContainer.innerHTML = '';
+    const classes = ['podio-1','podio-2','podio-3'];
+    const medals = ['🥇','🥈','🥉'];
+    
+    top3.forEach((p,i)=>{
+      const d = document.createElement('div');
+      d.className = `podio-item ${classes[i]}`;
+      d.dataset.id = p.id;
+      d.innerHTML = `
+        <div class="podio-rank">${medals[i]}</div>
+        <div class="podio-name">${escapeHtml(p.tag)}</div>
+        <div class="podio-stats">🔥 ${p.votes || 0} Votos</div>
+        <div class="podio-location">${escapeHtml(p.distrito)}</div>
+      `;
+      podioContainer.appendChild(d);
+    });
+  }
+
+  if(openBtn) openBtn.addEventListener('click', ()=> modal.classList.remove('hidden'));
+  if(closeBtn) closeBtn.addEventListener('click', ()=> modal.classList.add('hidden'));
+  modal && modal.addEventListener('click', e => { if(e.target===modal) modal.classList.add('hidden'); });
+
+  // ==========================================
+  // GUARDAR (MODO TEXTO SOLAMENTE - FOTO PLACEBO)
+  // ==========================================
+  modalForm && modalForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const inputs = modalForm.querySelectorAll('.input'); 
+    
+    const name = inputs[0].value;
+    const surname = inputs[1].value;
+    const sex = inputs[2].value;
+    const age = inputs[3].value;
+    const dist = inputs[5].value; 
+    
+    const textarea = document.querySelector("textarea.input");
+    const motivo = textarea ? textarea.value.trim() : "";
+    
+    // Validación básica de texto
+    if (motivo.length < 30) {
+      modalMsg.textContent = "❌ Mínimo 30 caracteres."; return;
+    }
+
+    modalMsg.textContent = "⏳ Procesando reporte...";
+
+    // AQUÍ ESTÁ EL TRUCO:
+    // Ignoramos totalmente el input de archivo. 
+    // No convertimos a Base64 ni subimos a Storage.
+    // Simplemente mandamos una cadena vacía "" en foto_data.
+
+    const newConfession = {
+      tag: `${name} ${surname}`.trim(),
+      text: motivo,
+      sexo: sex, edad: age, distrito: dist,
+      rating: 0, votes: 0,
+      enlaces: inputs[inputs.length-3] ? inputs[inputs.length-3].value : "", 
+      correo: inputs[inputs.length-2] ? inputs[inputs.length-2].value : "", 
+      
+      foto_data: "", // <--- ESTO ASEGURA QUE NO HAYA FOTO NI PESO EXTRA
+      
+      comments: []
+    };
+
+    const { error } = await supabase.from('infieles').insert([newConfession]);
+    
+    if(!error){
+        modalMsg.textContent = '✅ Publicado correctamente.';
+        modalForm.reset();
+        await fetchConfessions();
+        setTimeout(()=>{ modal.classList.add('hidden'); modalMsg.textContent=''; }, 1500);
+    } else {
+        modalMsg.textContent = '❌ Error: ' + error.message;
+    }
+  });
+
+  // ==========================================
+  // VOTACION: TOGGLE (QUITAR O PONER)
+  // ==========================================
+  document.addEventListener('click', async (e)=>{
+    if (!e.target.classList.contains('star')) return;
+    e.stopPropagation(); 
+
+    const pid = Number(e.target.dataset.id);
+    const val = Number(e.target.dataset.value);
+    const post = confessions.find(p => p.id === pid);
+    if (!post) return;
+
+    // Si ya votó, quitamos el voto
+    if (voters.includes(pid)) {
+        const newVotes = Math.max(0, (post.votes || 0) - 1); 
+        const { error } = await supabase.from('infieles').update({ votes: newVotes }).eq('id', pid);
+        if(!error) {
+            voters = voters.filter(id => id !== pid);
+            localStorage.setItem('voters', JSON.stringify(voters));
+            await fetchConfessions();
+        }
+    } else {
+        // Si no, agregamos voto
+        const { error } = await supabase.from('infieles').update({ 
+                rating: val, votes: (post.votes || 0) + 1 
+            }).eq('id', pid);
+
+        if(!error) {
+            voters.push(pid);
+            localStorage.setItem('voters', JSON.stringify(voters));
+            await fetchConfessions();
+        }
+    }
+  });
+
+  // ABRIR DETALLES
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".btn-admin-edit") || e.target.closest(".btn-admin-del")) return;
+    const card = e.target.closest(".post-card-compact") || e.target.closest(".podio-item");
+    if (!card) return; 
+    if (e.target.classList.contains("star")) return; 
+
+    const id = Number(card.dataset.id);
+    currentIndex = confessions.findIndex(p => p.id === id);
+    if (currentIndex !== -1) {
+      loadModalData(currentIndex);
+      viewModal.classList.remove("hidden");
+    }
+  });
+
+  function loadModalData(idx) {
+    const p = confessions[idx];
+    if(!p) return;
+    
+    document.getElementById("viewName").textContent = p.tag;
+    document.getElementById("viewLocation").textContent = "📍 " + p.distrito;
+    document.getElementById("viewText").textContent = p.text;
+    document.getElementById("viewSexo").textContent = p.sexo;
+    document.getElementById("viewEdad").textContent = p.edad;
+    document.getElementById("viewDistrito").textContent = p.distrito;
+    
+    const correoDisplay = (p.correo && p.correo !== "") ? p.correo : "No proporcionado";
+    document.getElementById("viewCorreoWrapper").innerHTML = `<strong>📧 Correo:</strong> ${correoDisplay}`;
+    document.getElementById("viewRating").textContent = `⭐ ${p.rating||0} (${p.votes||0} votos)`;
+
+    // FOTO
+    const archivosContainer = document.getElementById("viewArchivos");
+    archivosContainer.innerHTML = ""; 
+    if (p.foto_data && p.foto_data.length > 20) {
+        const img = document.createElement("img");
+        img.src = p.foto_data; 
+        img.className = "adjunto-img";
+        img.style.width = "100%";
+        img.style.borderRadius = "10px";
+        img.style.marginTop = "10px";
+        img.style.border = "1px solid #ddd";
+        archivosContainer.appendChild(img);
+    } else {
+        archivosContainer.innerHTML = "<small style='opacity:0.6'>Sin foto adjunta.</small>";
+    }
+
+    // ENLACES
+    const linkContainer = document.getElementById("viewEnlacesBox");
+    if(p.enlaces) {
+        linkContainer.innerHTML = `<a href="${p.enlaces}" target="_blank" style="color:#ff5252; text-decoration:underline;">${p.enlaces}</a>`;
+    } else {
+        linkContainer.innerHTML = "<small style='opacity:0.6'>Sin enlaces.</small>";
+    }
+    
+    renderComments(p.comments);
+    navCounter.textContent = `Reporte ${idx + 1} de ${confessions.length}`;
+    btnNext.disabled = (idx >= confessions.length - 1);
+    btnPrev.disabled = (idx <= 0);
+    if (viewModalBox) viewModalBox.scrollTop = 0;
+  }
+
+  btnNext.addEventListener('click', () => { 
+      if(currentIndex < confessions.length-1) { currentIndex++; loadModalData(currentIndex); }
+  });
+  btnPrev.addEventListener('click', () => { 
+      if(currentIndex > 0) { currentIndex--; loadModalData(currentIndex); }
+  });
+
+  function renderComments(list) {
+    commentsList.innerHTML = "";
+    if(!list || list.length === 0) { commentsList.innerHTML = "<p style='text-align:center; opacity:0.6; font-size:13px;'>Sé el primero en comentar.</p>"; return; }
+    list.forEach(c => {
+        const d = document.createElement("div"); d.className = "comment-item";
+        d.innerHTML = `<div class="comment-meta"><strong>👻 Anónimo</strong><span>${new Date(c.date).toLocaleDateString()}</span></div><div class="comment-text">${escapeHtml(c.text)}</div>`;
+        commentsList.appendChild(d);
+    });
+    commentsList.scrollTop = commentsList.scrollHeight;
+  }
+
+  commentForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const txt = newCommentInput.value.trim();
+    if(!txt) return;
+    const post = confessions[currentIndex];
+    const newComm = { text: txt, date: new Date().toISOString() };
+    const updatedComments = [...(post.comments || []), newComm];
+    const { error } = await supabase.from('infieles').update({ comments: updatedComments }).eq('id', post.id);
+    if(!error) {
+        newCommentInput.value = "";
+        confessions[currentIndex].comments = updatedComments;
+        renderComments(updatedComments);
+    }
+  });
+
+  closeViewModal.addEventListener("click", () => viewModal.classList.add("hidden"));
+  viewModal.addEventListener("click", e => { if(e.target === viewModal) viewModal.classList.add("hidden"); });
+  
+  // ==========================================
+  // LOGICA DE FILTROS AVANZADOS (NUEVO)
+  // ==========================================
+  function applyFilters() {
+    let result = [...confessions]; 
+
+    // 1. FILTRO POR TEXTO
+    const q = searchInput.value.toLowerCase();
+    if (q) {
+        result = result.filter(p => p.tag.toLowerCase().includes(q));
+    }
+
+    // 2. FILTRO POR DISTRITO
+    const dist = filterDistrito.value;
+    if (dist !== 'TODOS') {
+        result = result.filter(p => p.distrito === dist);
+    }
+
+    // 3. FILTRO POR EDAD
+    const rango = filterEdad.value;
+    if (rango !== 'TODOS') {
+        result = result.filter(p => {
+            const edad = Number(p.edad);
+            if (rango === 'range1') return edad >= 18 && edad <= 24;
+            if (rango === 'range2') return edad >= 25 && edad <= 35;
+            if (rango === 'range3') return edad >= 36 && edad <= 50;
+            if (rango === 'range4') return edad > 50;
+            return true;
+        });
+    }
+
+    // 4. ORDENAMIENTO
+    const orden = filterOrden.value;
+    result.sort((a, b) => {
+        if (orden === 'votos_mayor') return (b.votes || 0) - (a.votes || 0);
+        if (orden === 'votos_menor') return (a.votes || 0) - (b.votes || 0);
+        if (orden === 'antiguos') return new Date(a.created_at) - new Date(b.created_at);
+        // Por defecto: recientes
+        return new Date(b.created_at) - new Date(a.created_at);
+    });
+
+    renderAll(result);
+  }
+
+  // Listeners de filtros
+  searchInput.addEventListener('input', applyFilters);
+  filterDistrito.addEventListener('change', applyFilters);
+  filterEdad.addEventListener('change', applyFilters);
+  filterOrden.addEventListener('change', applyFilters);
+
+  document.getElementById('toggleDark').addEventListener('click', ()=> document.body.parentElement.classList.toggle('dark-mode'));
+
+  // ADMIN
+  adminTrigger.addEventListener('click', async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+        renderAdminList();
+        adminEditContainer.classList.add("hidden");
+        adminModal.classList.remove("hidden");
+    } else {
+        const email = prompt("📧 Email de Administrador:");
+        if (!email) return;
+        const pass = prompt("🔑 Contraseña:");
+        if (!pass) return;
+        const { data, error } = await supabase.auth.signInWithPassword({email: email, password: pass});
+        if (error) {
+            alert("⛔ Error de acceso: " + error.message);
+        } else {
+            alert("✅ Acceso concedido");
+            renderAdminList();
+            adminModal.classList.remove("hidden");
+        }
+    }
+  });
+
+  closeAdminModal.addEventListener('click', () => adminModal.classList.add("hidden"));
+
+  function renderAdminList() {
+    adminListContainer.innerHTML = '';
+    confessions.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "admin-row";
+        div.innerHTML = `
+            <div><strong>${escapeHtml(p.tag)}</strong><br><small>${escapeHtml(p.distrito)}</small></div>
+            <div class="admin-actions">
+                <button class="btn-admin-edit" onclick="editPostAdmin(${p.id})"><i class="fas fa-pen"></i></button>
+                <button class="btn-admin-del" onclick="deletePostAdmin(${p.id})"><i class="fas fa-trash"></i></button>
+            </div>`;
+        adminListContainer.appendChild(div);
+    });
+  }
+
+  window.deletePostAdmin = async (id) => {
+    if(confirm("¿Seguro que deseas ELIMINAR este registro?")) {
+        const { error } = await supabase.from('infieles').delete().eq('id', id);
+        if(!error) { await fetchConfessions(); renderAdminList(); } 
+        else { alert("Error: " + error.message); }
+    }
+  };
+
+  window.editPostAdmin = (id) => {
+    const post = confessions.find(c => c.id === id);
+    if(post) {
+        adminEditId.value = post.id;
+        adminEditName.value = post.tag;
+        adminEditDistrito.value = post.distrito;
+        adminEditText.value = post.text;
+        adminEditContainer.classList.remove("hidden");
+        adminListContainer.style.display = 'none'; 
+    }
+  };
+
+  adminCancelBtn.addEventListener('click', () => {
+    adminEditContainer.classList.add("hidden");
+    adminListContainer.style.display = 'block';
+  });
+
+  adminSaveBtn.addEventListener('click', async () => {
+    const id = Number(adminEditId.value);
+    const updates = { tag: adminEditName.value, distrito: adminEditDistrito.value, text: adminEditText.value };
+    const { error } = await supabase.from('infieles').update(updates).eq('id', id);
+    if(!error) {
+        alert("Actualizado.");
+        adminEditContainer.classList.add("hidden");
+        adminListContainer.style.display = 'block';
+        await fetchConfessions();
+        renderAdminList();
+    } else { alert("Error: " + error.message); }
+  });
+
+  // SIMULADOR DE ONLINE
+  function initOnlineCounter() {
+    const onlineEl = document.getElementById("onlineCount");
+    if(!onlineEl) return;
+    let count = Math.floor(Math.random() * (25 - 12 + 1)) + 12;
+    const updateDisplay = () => { onlineEl.innerHTML = `<i class="fas fa-users"></i> ${count} PERSONAS EN LINEA`; };
+    updateDisplay();
+    setInterval(() => {
+        const change = Math.floor(Math.random() * 6) - 2; 
+        count += change;
+        if (count < 8) count = 8;     
+        if (count > 60) count = 55;   
+        updateDisplay();
+    }, 4000); 
+  }
+  initOnlineCounter();
+
+});
+</script>
+</body>
+</html>
