@@ -168,8 +168,8 @@ h4 { color: var(--color-primary-end) !important; font-weight: 800; display: flex
     <p style="color:#c0392b; font-weight:600; margin-bottom:20px; font-size: 14px; line-height: 1.5;">IMPORTANTE: Completa este formulario para registrar públicamente a una persona infiel Este proceso es 100% anónimo. Todos los campos marcados con * son obligatorios.</p>
     <form id="modalForm" style="text-align: justify;">
       <h4><i class="fas fa-user"></i> DATOS DEL INFIEL</h4>
-      <div class="input-wrapper"><i class="fas fa-signature"></i><input class="input" type="text" placeholder="Nombres *" required></div>
-      <div class="input-wrapper"><i class="fas fa-signature"></i><input class="input" type="text" placeholder="Apellidos *" required></div>
+      <div class="input-wrapper"><i class="fas fa-signature"></i><input class="input" type="text" placeholder="Nombres *" maxlength="30" required></div>
+      <div class="input-wrapper"><i class="fas fa-signature"></i><input class="input" type="text" placeholder="Apellidos *" maxlength="30" required></div>
       <div class="input-wrapper"><i class="fas fa-venus-mars"></i><select class="input" required><option value="">Sexo *</option><option>HOMBRE</option><option>MUJER</option></select></div>
       <div class="input-wrapper"><i class="fas fa-birthday-cake"></i><input class="input" type="number" placeholder="Edad *" min="13" max="99" required></div>
       <h4 style="margin-top:18px;"><i class="fas fa-map-marker-alt"></i>  UBICACION EN BARRANCA</h4>
@@ -305,24 +305,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         distrito: dist, 
         rating: 0, 
         votes: 0, 
-        // CORRECCIÓN DUPLICIDAD: USAMOS IDs
         enlaces: document.getElementById('inputEnlace').value || "", 
         correo: document.getElementById('inputCorreo').value || "", 
         foto_data: "", 
         comments: [] 
     };
     
-    // SEGURIDAD EDGE FUNCTION
-    const { data: edgeResponse, error: invokeError } = await supabase.functions.invoke('verify-insert', {
-      body: {
-        token: token,
-        testimonio: newConfession
-      }
-    });
+    // --- CAMBIO AQUÍ: VOLVEMOS A LA INSERCIÓN DIRECTA (SIN EDGE FUNCTION) ---
+    const { error } = await supabase.from('infieles').insert([newConfession]);
 
-    const finalError = invokeError || edgeResponse?.error;
-
-    if(!finalError){ modalMsg.textContent = '✅ Publicado.'; modalForm.reset(); document.getElementById('captcha-container').innerHTML = ''; if(btnLoadCaptcha) btnLoadCaptcha.style.display='inline-block'; await fetchConfessions(); setTimeout(()=>{ modal.classList.add('hidden'); modalMsg.textContent=''; }, 1500); } else { modalMsg.textContent = '❌ Error: ' + (finalError.message || finalError); } 
+    if(!error){ 
+        modalMsg.textContent = '✅ Publicado.'; 
+        modalForm.reset(); 
+        document.getElementById('captcha-container').innerHTML = ''; 
+        if(btnLoadCaptcha) btnLoadCaptcha.style.display='inline-block'; 
+        await fetchConfessions(); 
+        setTimeout(()=>{ modal.classList.add('hidden'); modalMsg.textContent=''; }, 1500); 
+    } else { 
+        modalMsg.textContent = '❌ Error: ' + error.message; 
+        console.error(error);
+    }
   });
 
   // --- RENDERING ---
@@ -417,27 +419,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if(adminTrigger) adminTrigger.addEventListener('click', async () => { const { data: { session } } = await supabase.auth.getSession(); if (session) { renderAdminList(); adminEditContainer.classList.add("hidden"); adminModal.classList.remove("hidden"); } else { const email = prompt("📧 Email:"); if(!email) return; const pass = prompt("🔑 Password:"); if(!pass) return; const { error } = await supabase.auth.signInWithPassword({email: email, password: pass}); if (error) alert("⛔ " + error.message); else { alert("✅ OK"); renderAdminList(); adminModal.classList.remove("hidden"); } } });
   if(closeAdminModal) closeAdminModal.addEventListener('click', () => adminModal.classList.add("hidden")); if(adminSearchInput) adminSearchInput.addEventListener('input', () => { renderAdminList(); });
   function renderAdminList() { adminListContainer.innerHTML = ''; const term = adminSearchInput.value.toLowerCase().trim(); const filtered = confessions.filter(c => c.tag.toLowerCase().includes(term) || c.text.toLowerCase().includes(term)); if(filtered.length===0) adminListContainer.innerHTML = `<div style="text-align:center;color:#aaa;">Sin resultados</div>`; filtered.forEach(p => { const div = document.createElement("div"); div.className = "admin-row"; div.innerHTML = `<div><strong>${escapeHtml(p.tag)}</strong><br><small>${escapeHtml(p.distrito)}</small></div><div class="admin-actions"><button class="btn-admin-edit" onclick="editPostAdmin(${p.id})"><i class="fas fa-pen"></i></button><button class="btn-admin-del" onclick="deletePostAdmin(${p.id})"><i class="fas fa-trash"></i></button></div>`; adminListContainer.appendChild(div); }); }
-  
-  // ============================================
-  // 🔥 CORRECCIÓN DEL BOTÓN ELIMINAR (ADMIN) 🔥
-  // ============================================
-  window.deletePostAdmin = async (id) => { 
-    if(confirm("¿Eliminar este registro definitivamente?")) { 
-        // Usamos RPC (Llave Maestra) para saltar el bloqueo RLS
-        const { error } = await supabase.rpc('eliminar_infiel_admin', { registro_id: id });
-        
-        if (error) { 
-            console.error(error); 
-            alert("❌ Error: " + error.message); 
-        } else { 
-            alert("✅ Eliminado."); 
-            await fetchConfessions(); 
-            renderAdminList(); 
-        }
-    } 
-  }; 
-  
-  window.editPostAdmin = (id) => { const post = confessions.find(c => c.id === id); if(post) { adminEditId.value = post.id; adminEditName.value = post.tag; adminEditDistrito.value = post.distrito; adminEditText.value = post.text; adminEditContainer.classList.remove("hidden"); adminListContainer.style.display = 'none'; } }; if(adminCancelBtn) adminCancelBtn.addEventListener('click', () => { adminEditContainer.classList.add("hidden"); adminListContainer.style.display = 'block'; }); if(adminSaveBtn) adminSaveBtn.addEventListener('click', async () => { const updates = { tag: adminEditName.value, distrito: adminEditDistrito.value, text: adminEditText.value }; const { error } = await supabase.from('infieles').update(updates).eq('id', Number(adminEditId.value)); if(!error) { alert("OK"); adminEditContainer.classList.add("hidden"); adminListContainer.style.display = 'block'; await fetchConfessions(); renderAdminList(); } });
+  window.deletePostAdmin = async (id) => { if(confirm("¿Eliminar este registro definitivamente?")) { const { error } = await supabase.rpc('eliminar_infiel_admin', { registro_id: id }); if (error) { console.error(error); alert("❌ Error: " + error.message); } else { alert("✅ Eliminado."); await fetchConfessions(); renderAdminList(); } } }; window.editPostAdmin = (id) => { const post = confessions.find(c => c.id === id); if(post) { adminEditId.value = post.id; adminEditName.value = post.tag; adminEditDistrito.value = post.distrito; adminEditText.value = post.text; adminEditContainer.classList.remove("hidden"); adminListContainer.style.display = 'none'; } }; if(adminCancelBtn) adminCancelBtn.addEventListener('click', () => { adminEditContainer.classList.add("hidden"); adminListContainer.style.display = 'block'; }); if(adminSaveBtn) adminSaveBtn.addEventListener('click', async () => { const updates = { tag: adminEditName.value, distrito: adminEditDistrito.value, text: adminEditText.value }; const { error } = await supabase.from('infieles').update(updates).eq('id', Number(adminEditId.value)); if(!error) { alert("OK"); adminEditContainer.classList.add("hidden"); adminListContainer.style.display = 'block'; await fetchConfessions(); renderAdminList(); } });
   function initOnlineCounter() { const onlineEl = document.getElementById("onlineCount"); if(!onlineEl) return; let count = Math.floor(Math.random() * 15) + 12; setInterval(() => { count += Math.floor(Math.random()*6)-2; if(count<8)count=8; if(count>60)count=55; onlineEl.innerHTML=`<i class="fas fa-users"></i> ${count} PERSONAS EN LINEA`; }, 4000); } initOnlineCounter();
 });
 </script>
