@@ -177,9 +177,17 @@ h4 { color: var(--color-primary-end) !important; font-weight: 800; display: flex
       <div class="input-wrapper"><i class="fas fa-map-signs"></i><select class="input" required><option value="">Distrito *</option><option>BARRANCA</option><option>SUPE</option><option>PATIVILCA</option><option>PARAMONGA</option><option>SUPE PUERTO</option></select></div>
       <h4 style="margin-top:18px;"><i class="fas fa-comment-dots"></i>  TESTIMONIO / MOTIVO DEL REPORTE*</h4>
       <div class="input-wrapper textarea-wrapper"><i class="fas fa-pen"></i><textarea class="input" rows="5" minlength="30" placeholder="Describe lo sucedido... (mínimo 30 caracteres)" required></textarea></div>
-      <div class="input-wrapper"><i class="fas fa-link"></i><input class="input" type="text" placeholder="Enlaces externos (URLs)"></div>
-      <h4 style="margin-top:18px;"><i class="fas fa-envelope"></i>  CONTACTO (OPCIONAL)</h4>
-      <div class="input-wrapper"><i class="fas fa-at"></i><input class="input" type="email" placeholder="tu@gmail.com"></div>
+      <div class="input-wrapper">
+    <i class="fas fa-link"></i>
+    <input id="inputEnlace" class="input" type="text" placeholder="Enlaces (Desactivado)" readonly style="background: #e9ecef; cursor: not-allowed; opacity: 0.6;">
+</div>
+
+<h4 style="margin-top:18px;"><i class="fas fa-envelope"></i>  CONTACTO (OPCIONAL)</h4>
+
+<div class="input-wrapper">
+    <i class="fas fa-at"></i>
+    <input id="inputCorreo" class="input" type="email" placeholder="Contacto (Desactivado)" readonly style="background: #e9ecef; cursor: not-allowed; opacity: 0.6;">
+</div>
       
       <h4 style="margin-top:18px;"><i class="fas fa-balance-scale"></i>  AVISO LEGAL</h4>
       <p style="font-size:13px; opacity:0.8; text-align:left; margin-bottom:15px; line-height: 1.5;">Este sitio muestra testimonios enviados de forma anónima por usuarios. La información aquí compartida NO constituye una afirmación legal ni una verdad absoluta. Cada usuario es responsable de su testimonio y de las consecuencias legales que pueda generar. Este testimonio NO representa una acusación legal ni una sentencia hacia ninguna persona. Los datos pueden ser utilizados con fines informativos y de alerta social.</p>
@@ -421,4 +429,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 </body>
 
 </html>
+
 
